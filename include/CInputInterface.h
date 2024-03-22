@@ -20,7 +20,7 @@
 
 class inputInterface {
  public:
-  void setInput(std::ifstream &inputfileEvents, std::ifstream &inputfileLLP, std::string inputPathToResultFile);
+  void setInput(std::string &filenameEvents, std::string &filenameLLPs, std::string &inputPathToResultFile);
   void setInput(int argc, char *argv[]);
   float sigma{};
   int nMC{};
@@ -53,6 +53,20 @@ class inputInterface {
 
   std::map<std::string, std::array<int, 2>> detectors;
   nlohmann::json inputDet;
+
+  inline void readJsonFile(const std::string &filename, nlohmann::json &jsonObject) {
+    std::ifstream input(filename);
+    if (!input.is_open()) {
+      std::cout << filename + " cannot be opened. Aborting..." << std::endl;
+      exit(1);  // or throw to be collected by main.cc?
+    }
+    try {
+      input >> jsonObject;
+    } catch (nlohmann::detail::parse_error e) {
+      std::cout << "Error reading " << filename << " (invalid JSON format?):\n\n" << e.what() << std::endl;
+      exit(1);  // or throw to be collected by main.cc?
+    }
+  }
 };
 
 #endif

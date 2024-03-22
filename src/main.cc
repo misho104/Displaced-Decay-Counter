@@ -45,17 +45,7 @@ int main(int argc, char* argv[]) {
       std::cout << "**** Reading input data from " + filenameEvents + " ****" << '\n';
       std::cout << '\n';
 
-      std::ifstream inputfileEvents(filenameEvents);
-      if (!inputfileEvents.is_open()) {
-        std::cout << filenameEvents + " cannot be opened.";
-        die("Input is invalid!");
-      }
-      std::ifstream inputfileLLPs(filenameLLPs);
-      if (!inputfileLLPs.is_open()) {
-        std::cout << filenameLLPs + " cannot be opened.";
-        die("Input is invalid!");
-      }
-      input.setInput(inputfileEvents, inputfileLLPs, resultPath);
+      input.setInput(filenameEvents, filenameLLPs, resultPath);
     } else if (argc == 10) {
       input.setInput(argc, argv);
     }

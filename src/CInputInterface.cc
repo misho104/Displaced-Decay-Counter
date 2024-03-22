@@ -6,10 +6,10 @@
 /*!
  * Reads and stores the input from the input files.
  */
-void inputInterface::setInput(std::ifstream& inputfileEvents, std::ifstream& inputfileLLPs,
-                              std::string inputPathToResultFile) {
-  inputfileEvents >> inputEvents;
-  inputfileLLPs >> inputLLPs;
+void inputInterface::setInput(std::string& filenameEvents, std::string& filenameLLPs,
+                              std::string& inputPathToResultFile) {
+  readJsonFile(filenameEvents, inputEvents);
+  readJsonFile(filenameLLPs, inputLLPs);
   pathToResultFile = inputPathToResultFile;
 
   inputEvents["input"]["input_file_format"].get_to(input_file_format);
@@ -33,11 +33,8 @@ void inputInterface::setInput(std::ifstream& inputfileEvents, std::ifstream& inp
     std::cout << "Reading data for " << x.key() << '\n';
     LLPdata.push_back({x.value()["LLPPID"], x.value()["mass"], x.value()["ctau"], x.value()["visibleBR"]});
   }
-
   // Read detector settings
-  nlohmann::json temp(detectors);
-  std::ifstream("detectors.dat") >> temp;
-  inputDet = temp;
+  readJsonFile("detectors.dat", inputDet);
   myDetectorList.clear();
   for (auto& x : nlohmann::json::iterator_wrapper(inputDet)) {
     //      detectors.insert({{(std::string)x.key(),{(int)x.value()[0],(int)x.value()[1]}}});
