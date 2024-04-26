@@ -158,21 +158,18 @@ bool analysis::runPythia(const int nEventsMC, const std::string pathToResultFile
 
           // Check the list of final state particles
           for (int i = 0; i < pythia->event.size(); ++i) {
-            if (abs(pythia->event[i].id()) == LLPPID &&
-                abs(pythia->event[pythia->event[i].daughter1()].id()) != LLPPID) {
-              // search for LLPs not decaying into themselves
+            const Pythia8::Particle& particle = pythia->event[i];
+            if (abs(particle.id()) == LLPPID && abs(pythia->event[particle.daughter1()].id()) != LLPPID) {
+              // search LLPs not decaying into themselves
               // mass = pythia->event[i].m0();
               // ctau = pythia->event[i].tau0()/1000.; //conver mm to m
               ProducedLLP[iLLP] += 1;  // count produced LLPs
 
-              Pythia8::Particle XXX = pythia->event[i];
-              double gamma = XXX.e() / (mass);
-              //        double beta_z = XXX.pz()/XXX.e();
-              double beta = sqrt(1. - pow(mass / XXX.e(), 2));
-              double theta = XXX.p().theta();
+              double theta = particle.p().theta();
+              double flight = calculateFlight(particle, ctau);
 
               for (int detInd = 0; detInd < detTot; detInd++) {
-                auto acc = DetList[detInd].DetAcc(theta, beta * gamma * ctau);
+                auto acc = DetList[detInd].DetAcc(theta, flight);
                 if (acc > 0) {
                   analyseEvent evaluate(evt);
                   if (evaluate.passCuts(DetList[detInd].readname()))
@@ -221,15 +218,10 @@ bool analysis::runPythia(const int nEventsMC, const std::string pathToResultFile
           for (HepMC::GenEvent::particle_const_iterator p = evt->particles_begin(); p != evt->particles_end(); ++p) {
             if (isLast_hepmc(p, LLPPID)) {
               ProducedLLP[iLLP] += 1;
-
-              double gamma = (*p)->momentum().e() / (mass);
-              //    double beta_z = (*p)->momentum().pz()/(*p)->momentum().e();
-              double beta = sqrt(1. - pow(mass / (*p)->momentum().e(), 2));
               double theta = (*p)->momentum().theta();
-              //    double phi = (*p)->momentum().phi();
-              //    double eta = (*p)->momentum().eta();
+              double flight = calculateFlight(**p, ctau);
               for (int detInd = 0; detInd < detTot; detInd++) {
-                auto acc = DetList[detInd].DetAcc(theta, beta * gamma * ctau);
+                auto acc = DetList[detInd].DetAcc(theta, flight);
                 if (acc > 0) {
                   analyseEvent evaluate(evt);
                   if (evaluate.passCuts(DetList[detInd].readname()))

@@ -69,6 +69,16 @@ class analysis {
 
   std::vector<CLLP> LLPdata;
 
+  static inline double calculateFlight(const Pythia8::Particle& p, double ctau) {
+    // this calculation is the most precise for beta > 1e-6.
+    double gamma = p.e() / p.m();
+    return ctau * sqrt(gamma * gamma - 1);  // equal to ctau*beta*gamma
+  }
+  static inline double calculateFlight(const HepMC::GenParticle& p, double ctau) {
+    double gamma = p.momentum().e() / p.momentum().m();
+    return ctau * sqrt(gamma * gamma - 1);  // equal to ctau*beta*gamma
+  }
+
  private:
   Pythia8::Pythia* pythia;
   bool verbose;  //< declares amount of Information Pythia writes
